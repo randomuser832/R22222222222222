@@ -20,7 +20,7 @@ local function create(class, props, children)
 end
 
 -- LOADING SCREEN
-do
+
     local ok, err = pcall(function()
         local LoadGui = create("ScreenGui", {Name="SkidzWare_Load", Parent=LocalPlayer:WaitForChild("PlayerGui")})
         local LoadFrame = create("Frame", {
@@ -137,30 +137,54 @@ local ok, err = pcall(function()
         Parent = Topbar
     }, {create("UICorner",{CornerRadius=UDim.new(0,8)})})
 
-local minimized = false
 
+
+ -- DRAGGING LOGIC
+local dragging, dragStart, startPos
+Topbar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then dragging = false end
+        end)
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- MINIMIZE / RESTORE LOGIC
+local minimized = false
 MinimizeButton.MouseButton1Click:Connect(function()
     minimized = not minimized
 
     if minimized then
-        -- Hide all main content except Topbar
+        -- Hide everything except Topbar
         for _, child in ipairs(MainFrame:GetChildren()) do
             if child ~= Topbar then
                 child.Visible = false
             end
         end
 
-        -- Hide tab contents
+        -- Hide all tab contents
         for _, tab in ipairs(Tabs) do
             tab.Frame.Visible = false
         end
 
-        -- Change symbol to +
+        -- Change button symbol
         MinimizeButton.Text = "+"
-        -- Optional: Tween MainFrame smaller
-        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 500, 0, 32)}):Play()
+
+        -- Shrink MainFrame to Topbar height
+        TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(MainFrame.Size.X.Scale, MainFrame.Size.X.Offset, 0, Topbar.Size.Y.Offset)
+        }):Play()
     else
-        -- Show all main content
+        -- Show everything again
         for _, child in ipairs(MainFrame:GetChildren()) do
             if child ~= Topbar then
                 child.Visible = true
@@ -172,32 +196,16 @@ MinimizeButton.MouseButton1Click:Connect(function()
             Tabs[1].Frame.Visible = true
         end
 
-        -- Change symbol back to -
+        -- Change button symbol back
         MinimizeButton.Text = "-"
-        -- Optional: Tween MainFrame back to full size
-        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 500, 0, 360)}):Play()
+
+        -- Expand MainFrame back to original size
+        TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 500, 0, 360)
+        }):Play()
     end
 end)
 
-
-    -- DRAGGING LOGIC
-    local dragging, dragStart, startPos
-    Topbar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = MainFrame.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then dragging = false end
-            end)
-        end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - dragStart
-            MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
 
     -- NOTIFICATIONS
     local NotificationsFrame = create("Frame", {
