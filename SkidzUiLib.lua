@@ -87,7 +87,7 @@ end
         LoadGui:Destroy()
     end)
     if not ok then warn("Loading screen failed: "..tostring(err)) end
-end
+
 
 -- MAIN SCREEN
 local ok, err = pcall(function()
