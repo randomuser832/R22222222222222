@@ -136,6 +136,7 @@ local ok, err = pcall(function()
         TextColor3 = Color3.fromRGB(255,255,255),
         Parent = Topbar
     }, {create("UICorner",{CornerRadius=UDim.new(0,8)})})
+end)
 
 
 
