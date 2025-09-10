@@ -126,17 +126,6 @@ local ok, err = pcall(function()
         TextXAlignment = Enum.TextXAlignment.Left
     })
 
-    local MinimizeButton = create("TextButton", {
-        Size = UDim2.new(0,32,0,32),
-        Position = UDim2.new(1,-38,0,0),
-        BackgroundColor3 = Color3.fromRGB(50,50,50),
-        Text = "-",
-        Font = Enum.Font.GothamBold,
-        TextSize = 18,
-        TextColor3 = Color3.fromRGB(255,255,255),
-        Parent = Topbar
-    }, {create("UICorner",{CornerRadius=UDim.new(0,8)})})
-end)
 
 
 
@@ -160,53 +149,7 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 
--- MINIMIZE / RESTORE LOGIC
-local minimized = false
-MinimizeButton.MouseButton1Click:Connect(function()
-    minimized = not minimized
 
-    if minimized then
-        -- Hide all children except Topbar
-        for _, child in ipairs(MainFrame:GetChildren()) do
-            if child ~= Topbar then
-                child.Visible = false
-            end
-        end
-
-        -- Hide all tab content frames
-        for _, tab in ipairs(Tabs) do
-            tab.Frame.Visible = false
-        end
-
-        -- Change button symbol
-        MinimizeButton.Text = "+"
-
-        -- Animate shrinking
-        TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Size = UDim2.new(MainFrame.Size.X.Scale, MainFrame.Size.X.Offset, 0, Topbar.Size.Y.Offset)
-        }):Play()
-    else
-        -- Show all children again
-        for _, child in ipairs(MainFrame:GetChildren()) do
-            if child ~= Topbar then
-                child.Visible = true
-            end
-        end
-
-        -- Restore the first tab by default
-        if #Tabs > 0 then
-            Tabs[1].Frame.Visible = true
-        end
-
-        -- Change button symbol back
-        MinimizeButton.Text = "-"
-
-        -- Animate expanding
-        TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Size = UDim2.new(0, 500, 0, 360)
-        }):Play()
-    end
-end)
 
 
 
