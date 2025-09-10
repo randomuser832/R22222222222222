@@ -217,34 +217,52 @@ local ok, err = pcall(function()
 
     local Tabs = {}
 
-    function SkidzWare:CreateTab(name)
-        local ok, tab = pcall(function()
-            local tabObj = {Name=name, Components={}, Frame=create("Frame",{Size=UDim2.new(1,0,1,0), BackgroundTransparency=1, Parent=TabContentFrame})}
-            tabObj.Frame.Visible = (#Tabs == 0)
-            local btn = create("TextButton",{
-                Size=UDim2.new(0,100,1,0),
-                BackgroundColor3=Color3.fromRGB(50,50,50),
-                Text=name,
-                TextColor3=Color3.fromRGB(255,255,255),
-                Font=Enum.Font.GothamBold,
-                TextSize=14,
-                Parent=TabButtonsFrame
-            }, {create("UICorner",{CornerRadius=UDim.new(0,8)})})
-            btn.MouseButton1Click:Connect(function()
-                for _, t in pairs(Tabs) do t.Frame.Visible = false end
-                tabObj.Frame.Visible = true
-            end)
-            table.insert(Tabs,tabObj)
-            for i,t in ipairs(Tabs) do
-                t.Button = t.Button or btn
-                t.Button.Position = UDim2.new(0,(i-1)*110,0,0)
-            end
-            tabObj.Button = btn
-            return tabObj
+   function SkidzWare:CreateTab(name)
+    local ok, tab = pcall(function()
+        local tabObj = {Name=name, Components={}, Frame=create("Frame",{Size=UDim2.new(1,0,1,0), BackgroundTransparency=1, Parent=TabContentFrame})}
+        tabObj.Frame.Visible = (#Tabs == 0)
+        
+        local btn = create("TextButton",{
+            Size=UDim2.new(0,100,1,0),
+            BackgroundColor3=Color3.fromRGB(50,50,50),
+            Text=name,
+            TextColor3=Color3.fromRGB(255,255,255),
+            Font=Enum.Font.GothamBold,
+            TextSize=14,
+            Parent=TabButtonsFrame
+        }, {create("UICorner",{CornerRadius=UDim.new(0,8)})})
+        
+        btn.MouseButton1Click:Connect(function()
+            for _, t in pairs(Tabs) do t.Frame.Visible = false end
+            tabObj.Frame.Visible = true
         end)
-        if not ok then warn("CreateTab failed: "..tostring(tab)) end
-        return tab
-    end
+        
+        table.insert(Tabs,tabObj)
+        for i,t in ipairs(Tabs) do
+            t.Button = t.Button or btn
+            t.Button.Position = UDim2.new(0,(i-1)*110,0,0)
+        end
+        tabObj.Button = btn
+        
+        -- Override default CreateButton/Toggle/Textbox/Slider to parent inside this tab
+        tabObj.CreateButton = function(text, callback)
+            return SkidzWare.CreateButton(tabObj.Frame, text, callback)
+        end
+        tabObj.CreateToggle = function(text, callback)
+            return SkidzWare.CreateToggle(tabObj.Frame, text, callback)
+        end
+        tabObj.CreateTextbox = function(placeholder, callback)
+            return SkidzWare.CreateTextbox(tabObj.Frame, placeholder, callback)
+        end
+        tabObj.CreateSlider = function(text, min, max, callback)
+            return SkidzWare.CreateSlider(tabObj.Frame, text, min, max, callback)
+        end
+        
+        return tabObj
+    end)
+    if not ok then warn("CreateTab failed: "..tostring(tab)) end
+    return tab
+end
 
     -- FUNCTION WRAPPERS
     local function safeCall(funcName, func)
