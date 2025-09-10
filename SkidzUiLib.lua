@@ -80,7 +80,7 @@ end
             Parent=BarBG
         }, {create("UICorner", {CornerRadius=UDim.new(0,8)})})
 
-        TweenService:Create(Bar, TweenInfo.new(2.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(1,0,1,0)}):Play()
+        TweenService:Create(Bar, TweenInfo.new(4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(1,0,1,0)}):Play()
         task.wait(3.2)
         Label.Text = "Made by Tyrone_darealest"
         task.wait(0.8)
@@ -332,7 +332,7 @@ SkidzWare.CreateToggle = function(parent, text, callback)
     return toggle
 end
 
--- TEXTBOX (Compact Version)
+-- TEXTBOX (Tiny Input Box Version)
 SkidzWare.CreateTextbox = function(parent, placeholder, callback)
     local frame = create("Frame", {
         Size = UDim2.new(1, -10, 0, 24), -- frame height
@@ -349,16 +349,16 @@ SkidzWare.CreateTextbox = function(parent, placeholder, callback)
         TextSize = 12,
         TextColor3 = Color3.fromRGB(255,255,255),
         BackgroundTransparency = 1,
-        Size = UDim2.new(0.4, -6, 1, 0), -- smaller label width
+        Size = UDim2.new(0.68, -6, 1, 0), -- label takes most of the width
         Position = UDim2.new(0,6,0,0),
         Parent = frame,
         TextXAlignment = Enum.TextXAlignment.Left
     })
 
-    -- Actual textbox (where user types)
+    -- Tiny textbox (30% width)
     local box = create("TextBox", {
-        Size = UDim2.new(0.55, 0, 0.8, 0), -- smaller height and width
-        Position = UDim2.new(0.42, 0, 0.1, 0), -- center vertically in frame
+        Size = UDim2.new(0.3, 0, 0.8, 0), -- 30% width, 80% height of frame
+        Position = UDim2.new(0.7, 0, 0.1, 0), -- positioned at the right of the label
         BackgroundColor3 = Color3.fromRGB(30,30,30),
         TextColor3 = Color3.fromRGB(255,255,255),
         Text = "",
@@ -377,6 +377,7 @@ SkidzWare.CreateTextbox = function(parent, placeholder, callback)
 
     return frame
 end
+
 
 
 -- SLIDER
