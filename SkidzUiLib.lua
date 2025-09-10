@@ -388,18 +388,25 @@ end
     end)
 
     -- TEXTBOX
-  SkidzWare.CreateTextbox = safeCall("CreateTextbox", function(parent, placeholder, callback)
+ SkidzWare.CreateTextbox = safeCall("CreateTextbox", function(parent, placeholder, callback)
+    if not parent then
+        warn("CreateTextbox failed: parent is nil")
+        return nil
+    end
+
     local BoxFrame = create("Frame", {
-        Size = UDim2.new(1, -10, 0, 28), -- smaller height
+        Size = UDim2.new(1, -10, 0, 28),
         BackgroundColor3 = Color3.fromRGB(45,45,45),
         Parent = parent
-    }, {
-        create("UICorner",{CornerRadius = UDim.new(0,6)}),
-        create("UIStroke",{Color = Color3.fromRGB(80,80,80)})
     })
 
+    if not BoxFrame then return nil end
+
+    create("UICorner", {CornerRadius = UDim.new(0,6), Parent = BoxFrame})
+    create("UIStroke", {Color = Color3.fromRGB(80,80,80), Parent = BoxFrame})
+
     local Label = create("TextLabel", {
-        Text = placeholder,
+        Text = placeholder or "",
         Font = Enum.Font.Gotham,
         TextSize = 13,
         TextColor3 = Color3.fromRGB(255,255,255),
@@ -419,16 +426,18 @@ end
         Font = Enum.Font.Gotham,
         TextSize = 13,
         Parent = BoxFrame
-    }, {
-        create("UICorner",{CornerRadius=UDim.new(0,4)}),
-        create("UIStroke",{Color=Color3.fromRGB(100,100,100)})
     })
 
-    Box.FocusLost:Connect(function(enter)
-        if enter and callback then -- check callback exists
-            pcall(callback, Box.Text)
-        end
-    end)
+    if Box then
+        create("UICorner",{CornerRadius=UDim.new(0,4), Parent=Box})
+        create("UIStroke",{Color=Color3.fromRGB(100,100,100), Parent=Box})
+
+        Box.FocusLost:Connect(function(enter)
+            if enter and typeof(callback) == "function" then
+                pcall(callback, Box.Text)
+            end
+        end)
+    end
 
     return BoxFrame
 end)
