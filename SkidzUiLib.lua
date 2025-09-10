@@ -221,7 +221,11 @@ local ok, err = pcall(function()
     local ok, tab = pcall(function()
         local tabObj = {Name=name, Components={}, Frame=create("Frame",{Size=UDim2.new(1,0,1,0), BackgroundTransparency=1, Parent=TabContentFrame})}
         tabObj.Frame.Visible = (#Tabs == 0)
-        
+        tabObj.Frame.ClipsDescendants = true
+
+        -- Auto-stack elements
+        create("UIListLayout", {Parent=tabObj.Frame, Padding=UDim.new(0,8), FillDirection=Enum.FillDirection.Vertical})
+
         local btn = create("TextButton",{
             Size=UDim2.new(0,100,1,0),
             BackgroundColor3=Color3.fromRGB(50,50,50),
@@ -231,20 +235,20 @@ local ok, err = pcall(function()
             TextSize=14,
             Parent=TabButtonsFrame
         }, {create("UICorner",{CornerRadius=UDim.new(0,8)})})
-        
+
         btn.MouseButton1Click:Connect(function()
             for _, t in pairs(Tabs) do t.Frame.Visible = false end
             tabObj.Frame.Visible = true
         end)
-        
+
         table.insert(Tabs,tabObj)
         for i,t in ipairs(Tabs) do
             t.Button = t.Button or btn
             t.Button.Position = UDim2.new(0,(i-1)*110,0,0)
         end
         tabObj.Button = btn
-        
-        -- Override default CreateButton/Toggle/Textbox/Slider to parent inside this tab
+
+        -- Function wrappers
         tabObj.CreateButton = function(text, callback)
             return SkidzWare.CreateButton(tabObj.Frame, text, callback)
         end
@@ -257,12 +261,13 @@ local ok, err = pcall(function()
         tabObj.CreateSlider = function(text, min, max, callback)
             return SkidzWare.CreateSlider(tabObj.Frame, text, min, max, callback)
         end
-        
+
         return tabObj
     end)
     if not ok then warn("CreateTab failed: "..tostring(tab)) end
     return tab
 end
+
 
     -- FUNCTION WRAPPERS
     local function safeCall(funcName, func)
