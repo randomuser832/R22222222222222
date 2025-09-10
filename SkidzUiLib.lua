@@ -296,126 +296,82 @@ end
 
 
 
-    -- BUTTON
-    SkidzWare.CreateButton = safeCall("CreateButton", function(parent,text,callback)
-        local Button = create("TextButton", {
-            Size = UDim2.new(1,-10,0,32),
-            BackgroundColor3 = Color3.fromRGB(45,45,45),
-            Text=text,
-            Font=Enum.Font.Gotham,
-            TextSize=14,
-            TextColor3=Color3.fromRGB(255,255,255),
-            Parent=parent
-        }, {
-            create("UICorner",{CornerRadius=UDim.new(0,8)}),
-            create("UIStroke",{Color=Color3.fromRGB(80,80,80)})
-        })
-        Button.MouseButton1Click:Connect(function() pcall(callback) end)
-        return Button
-    end)
-
-    -- TOGGLE
-    SkidzWare.CreateToggle = safeCall("CreateToggle", function(parent,text,callback)
-        local Toggle = create("Frame",{Size=UDim2.new(1,-10,0,32), BackgroundColor3 = Color3.fromRGB(45,45,45), Parent=parent})
-        create("UICorner",{CornerRadius=UDim.new(0,8), Parent=Toggle})
-        create("UIStroke",{Color=Color3.fromRGB(80,80,80), Parent=Toggle})
-        local Label = create("TextLabel", {Text=text, Font=Enum.Font.Gotham, TextSize=14, TextColor3=Color3.fromRGB(255,255,255), BackgroundTransparency=1, Size=UDim2.new(1,-40,1,0), Parent=Toggle, TextXAlignment=Enum.TextXAlignment.Left})
-        local Box = create("Frame", {Size=UDim2.new(0,24,0,24), Position=UDim2.new(1,-30,0.5,-12), BackgroundColor3=Color3.fromRGB(30,30,30), Parent=Toggle}, {create("UICorner",{CornerRadius=UDim.new(0,4)}), create("UIStroke",{Color=Color3.fromRGB(100,100,100)})})
-        local State=false
-        Box.InputBegan:Connect(function(input)
-            if input.UserInputType==Enum.UserInputType.MouseButton1 then
-                State = not State
-                Box.BackgroundColor3 = State and Color3.fromRGB(0,200,100) or Color3.fromRGB(30,30,30)
-                callback(State)
-            end
-        end)
-        return Toggle
-    end)
-
-    -- TEXTBOX
- SkidzWare.CreateTextbox = safeCall("CreateTextbox", function(parent, placeholder, callback)
-    if not parent then
-        warn("CreateTextbox failed: parent is nil")
-        return nil
-    end
-
-    local BoxFrame = create("Frame", {
-        Size = UDim2.new(1, -10, 0, 28),
+-- BUTTON
+SkidzWare.CreateButton = function(parent, text, callback)
+    local btn = create("TextButton", {
+        Size = UDim2.new(1,-10,0,32),
         BackgroundColor3 = Color3.fromRGB(45,45,45),
+        Text = text,
+        Font = Enum.Font.Gotham,
+        TextSize = 14,
+        TextColor3 = Color3.fromRGB(255,255,255),
         Parent = parent
+    }, {
+        create("UICorner",{CornerRadius=UDim.new(0,8)}),
+        create("UIStroke",{Color=Color3.fromRGB(80,80,80)})
     })
+    btn.MouseButton1Click:Connect(function() pcall(callback) end)
+    return btn
+end
 
-    if not BoxFrame then return nil end
-
-    create("UICorner", {CornerRadius = UDim.new(0,6), Parent = BoxFrame})
-    create("UIStroke", {Color = Color3.fromRGB(80,80,80), Parent = BoxFrame})
-
-    local Label = create("TextLabel", {
-        Text = placeholder or "",
-        Font = Enum.Font.Gotham,
-        TextSize = 13,
-        TextColor3 = Color3.fromRGB(255,255,255),
-        BackgroundTransparency = 1,
-        Size = UDim2.new(0.6, -6, 1, 0),
-        Position = UDim2.new(0,6,0,0),
-        Parent = BoxFrame,
-        TextXAlignment = Enum.TextXAlignment.Left
-    })
-
-    local Box = create("TextBox", {
-        Size = UDim2.new(0.34, 0, 1, 0),
-        Position = UDim2.new(0.66, 0, 0, 0),
-        BackgroundColor3 = Color3.fromRGB(30,30,30),
-        TextColor3 = Color3.fromRGB(255,255,255),
-        Text = "",
-        Font = Enum.Font.Gotham,
-        TextSize = 13,
-        Parent = BoxFrame
-    })
-
-    if Box then
-        create("UICorner",{CornerRadius=UDim.new(0,4), Parent=Box})
-        create("UIStroke",{Color=Color3.fromRGB(100,100,100), Parent=Box})
-
-        Box.FocusLost:Connect(function(enter)
-            if enter and typeof(callback) == "function" then
-                pcall(callback, Box.Text)
-            end
-        end)
-    end
-
-    return BoxFrame
-end)
-
-
-
-    -- SLIDER
-    SkidzWare.CreateSlider = safeCall("CreateSlider", function(parent,text,min,max,callback)
-        local SliderFrame = create("Frame",{Size = UDim2.new(1,-10,0,32), BackgroundColor3 = Color3.fromRGB(45,45,45), Parent = parent}, {create("UICorner",{CornerRadius=UDim.new(0,8)}), create("UIStroke",{Color=Color3.fromRGB(80,80,80)})})
-        local Label = create("TextLabel",{Text=text, Font=Enum.Font.Gotham, TextSize=14, TextColor3=Color3.fromRGB(255,255,255), BackgroundTransparency=1, Size=UDim2.new(0.4,0,1,0), Parent=SliderFrame, TextXAlignment=Enum.TextXAlignment.Left})
-        local BarBG = create("Frame",{Size=UDim2.new(0.55,0,0.3,0), Position=UDim2.new(0.45,0,0.35,0), BackgroundColor3=Color3.fromRGB(30,30,30), Parent=SliderFrame}, {create("UICorner",{CornerRadius=UDim.new(0,4)})})
-        local Bar = create("Frame",{Size=UDim2.new(0,0,1,0), BackgroundColor3=Color3.fromRGB(0,200,100), Parent=BarBG}, {create("UICorner",{CornerRadius=UDim.new(0,4)})})
-        local dragging=false
-        local function update(input)
-            local pos = math.clamp(input.Position.X - BarBG.AbsolutePosition.X,0,BarBG.AbsoluteSize.X)
-            Bar.Size = UDim2.new(pos/BarBG.AbsoluteSize.X,0,1,0)
-            local val = min + (pos/BarBG.AbsoluteSize.X)*(max-min)
-            pcall(callback,val)
+-- TOGGLE
+SkidzWare.CreateToggle = function(parent, text, callback)
+    local toggle = create("Frame", {Size = UDim2.new(1,-10,0,32), BackgroundColor3 = Color3.fromRGB(45,45,45), Parent = parent})
+    create("UICorner",{CornerRadius=UDim.new(0,8), Parent = toggle})
+    create("UIStroke",{Color = Color3.fromRGB(80,80,80), Parent = toggle})
+    local label = create("TextLabel",{Text=text, Font=Enum.Font.Gotham, TextSize=14, TextColor3=Color3.fromRGB(255,255,255), BackgroundTransparency=1, Size=UDim2.new(1,-40,1,0), Parent = toggle, TextXAlignment=Enum.TextXAlignment.Left})
+    local box = create("Frame",{Size=UDim2.new(0,24,0,24), Position=UDim2.new(1,-30,0.5,-12), BackgroundColor3=Color3.fromRGB(30,30,30), Parent = toggle}, {create("UICorner",{CornerRadius=UDim.new(0,4)}), create("UIStroke",{Color=Color3.fromRGB(100,100,100)})})
+    local state = false
+    box.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            state = not state
+            box.BackgroundColor3 = state and Color3.fromRGB(0,200,100) or Color3.fromRGB(30,30,30)
+            pcall(callback, state)
         end
-        BarBG.InputBegan:Connect(function(input)
-            if input.UserInputType==Enum.UserInputType.MouseButton1 then
-                dragging=true
-                update(input)
-            end
-        end)
-        UserInputService.InputChanged:Connect(function(input)
-            if dragging and input.UserInputType==Enum.UserInputType.MouseMovement then update(input) end
-        end)
-        BarBG.InputEnded:Connect(function(input)
-            if input.UserInputType==Enum.UserInputType.MouseButton1 then dragging=false end
-        end)
-        return SliderFrame
     end)
+    return toggle
+end
+
+-- TEXTBOX
+SkidzWare.CreateTextbox = function(parent, placeholder, callback)
+    local frame = create("Frame",{Size = UDim2.new(1,-10,0,28), BackgroundColor3 = Color3.fromRGB(45,45,45), Parent = parent})
+    create("UICorner",{CornerRadius = UDim.new(0,6), Parent = frame})
+    create("UIStroke",{Color = Color3.fromRGB(80,80,80), Parent = frame})
+    local label = create("TextLabel",{Text=placeholder, Font=Enum.Font.Gotham, TextSize=13, TextColor3=Color3.fromRGB(255,255,255), BackgroundTransparency=1, Size=UDim2.new(0.6,-6,1,0), Position=UDim2.new(0,6,0,0), Parent = frame, TextXAlignment=Enum.TextXAlignment.Left})
+    local box = create("TextBox",{Size = UDim2.new(0.34,0,1,0), Position=UDim2.new(0.66,0,0,0), BackgroundColor3 = Color3.fromRGB(30,30,30), TextColor3 = Color3.fromRGB(255,255,255), Text="", Font=Enum.Font.Gotham, TextSize=13, Parent = frame})
+    create("UICorner",{CornerRadius = UDim.new(0,4), Parent = box})
+    create("UIStroke",{Color = Color3.fromRGB(100,100,100), Parent = box})
+    box.FocusLost:Connect(function(enter)
+        if enter then pcall(callback, box.Text) end
+    end)
+    return frame
+end
+
+-- SLIDER
+SkidzWare.CreateSlider = function(parent, text, min, max, callback)
+    local frame = create("Frame",{Size=UDim2.new(1,-10,0,32), BackgroundColor3 = Color3.fromRGB(45,45,45), Parent = parent}, {create("UICorner",{CornerRadius=UDim.new(0,8)}), create("UIStroke",{Color=Color3.fromRGB(80,80,80)})})
+    local label = create("TextLabel",{Text=text, Font=Enum.Font.Gotham, TextSize=14, TextColor3=Color3.fromRGB(255,255,255), BackgroundTransparency=1, Size=UDim2.new(0.4,0,1,0), Parent = frame, TextXAlignment=Enum.TextXAlignment.Left})
+    local barBG = create("Frame",{Size=UDim2.new(0.55,0,0.3,0), Position=UDim2.new(0.45,0,0.35,0), BackgroundColor3=Color3.fromRGB(30,30,30), Parent = frame}, {create("UICorner",{CornerRadius=UDim.new(0,4)})})
+    local bar = create("Frame",{Size=UDim2.new(0,0,1,0), BackgroundColor3=Color3.fromRGB(0,200,100), Parent = barBG}, {create("UICorner",{CornerRadius=UDim.new(0,4)})})
+    local dragging = false
+    local function update(input)
+        local pos = math.clamp(input.Position.X - barBG.AbsolutePosition.X, 0, barBG.AbsoluteSize.X)
+        bar.Size = UDim2.new(pos/barBG.AbsoluteSize.X,0,1,0)
+        local val = min + (pos/barBG.AbsoluteSize.X)*(max-min)
+        pcall(callback, val)
+    end
+    barBG.InputBegan:Connect(function(input)
+        if input.UserInputType==Enum.UserInputType.MouseButton1 then dragging=true update(input) end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType==Enum.UserInputType.MouseMovement then update(input) end
+    end)
+    barBG.InputEnded:Connect(function(input)
+        if input.UserInputType==Enum.UserInputType.MouseButton1 then dragging=false end
+    end)
+    return frame
+end
+
 
 end)
 if not ok then warn("Main GUI failed: "..tostring(err)) end
