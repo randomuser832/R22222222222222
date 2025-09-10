@@ -137,6 +137,49 @@ local ok, err = pcall(function()
         Parent = Topbar
     }, {create("UICorner",{CornerRadius=UDim.new(0,8)})})
 
+local minimized = false
+
+MinimizeButton.MouseButton1Click:Connect(function()
+    minimized = not minimized
+
+    if minimized then
+        -- Hide all main content except Topbar
+        for _, child in ipairs(MainFrame:GetChildren()) do
+            if child ~= Topbar then
+                child.Visible = false
+            end
+        end
+
+        -- Hide tab contents
+        for _, tab in ipairs(Tabs) do
+            tab.Frame.Visible = false
+        end
+
+        -- Change symbol to +
+        MinimizeButton.Text = "+"
+        -- Optional: Tween MainFrame smaller
+        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 500, 0, 32)}):Play()
+    else
+        -- Show all main content
+        for _, child in ipairs(MainFrame:GetChildren()) do
+            if child ~= Topbar then
+                child.Visible = true
+            end
+        end
+
+        -- Show first tab by default
+        if #Tabs > 0 then
+            Tabs[1].Frame.Visible = true
+        end
+
+        -- Change symbol back to -
+        MinimizeButton.Text = "-"
+        -- Optional: Tween MainFrame back to full size
+        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 500, 0, 360)}):Play()
+    end
+end)
+
+
     -- DRAGGING LOGIC
     local dragging, dragStart, startPos
     Topbar.InputBegan:Connect(function(input)
@@ -217,15 +260,31 @@ local ok, err = pcall(function()
 
     local Tabs = {}
 
-   function SkidzWare:CreateTab(name)
+function SkidzWare:CreateTab(name)
     local ok, tab = pcall(function()
-        local tabObj = {Name=name, Components={}, Frame=create("Frame",{Size=UDim2.new(1,0,1,0), BackgroundTransparency=1, Parent=TabContentFrame})}
-        tabObj.Frame.Visible = (#Tabs == 0)
-        tabObj.Frame.ClipsDescendants = true
+        local tabObj = {Name=name, Components={}}
 
-        -- Auto-stack elements
-        create("UIListLayout", {Parent=tabObj.Frame, Padding=UDim.new(0,8), FillDirection=Enum.FillDirection.Vertical})
+        -- Scrollable frame inside tab
+        local tabFrame = create("ScrollingFrame", {
+            Size = UDim2.new(1,0,1,0),
+            BackgroundTransparency = 1,
+            CanvasSize = UDim2.new(0,0,0,0),
+            ScrollBarThickness = 6,
+            Parent = TabContentFrame,
+            Visible = (#Tabs == 0)
+        })
 
+        tabFrame.ClipsDescendants = true
+
+        -- UIListLayout for vertical stacking
+        local listLayout = create("UIListLayout", {Parent=tabFrame, Padding=UDim.new(0,8), FillDirection=Enum.FillDirection.Vertical})
+        listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            tabFrame.CanvasSize = UDim2.new(0,0,0,listLayout.AbsoluteContentSize.Y + 10)
+        end)
+
+        tabObj.Frame = tabFrame
+
+        -- Create the tab button
         local btn = create("TextButton",{
             Size=UDim2.new(0,100,1,0),
             BackgroundColor3=Color3.fromRGB(50,50,50),
@@ -237,18 +296,21 @@ local ok, err = pcall(function()
         }, {create("UICorner",{CornerRadius=UDim.new(0,8)})})
 
         btn.MouseButton1Click:Connect(function()
-            for _, t in pairs(Tabs) do t.Frame.Visible = false end
+            for _, t in ipairs(Tabs) do
+                t.Frame.Visible = false
+            end
             tabObj.Frame.Visible = true
         end)
 
-        table.insert(Tabs,tabObj)
+        tabObj.Button = btn
+        table.insert(Tabs, tabObj)
+
+        -- Reposition tab buttons
         for i,t in ipairs(Tabs) do
-            t.Button = t.Button or btn
             t.Button.Position = UDim2.new(0,(i-1)*110,0,0)
         end
-        tabObj.Button = btn
 
-        -- Function wrappers
+        -- Add element wrappers for this tab
         tabObj.CreateButton = function(text, callback)
             return SkidzWare.CreateButton(tabObj.Frame, text, callback)
         end
@@ -267,6 +329,7 @@ local ok, err = pcall(function()
     if not ok then warn("CreateTab failed: "..tostring(tab)) end
     return tab
 end
+
 
 
     -- FUNCTION WRAPPERS
