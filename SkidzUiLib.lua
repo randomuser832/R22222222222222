@@ -158,7 +158,7 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- MINIMIZE / RESTORE LOGIC
+
 -- MINIMIZE / RESTORE LOGIC
 local minimized = false
 MinimizeButton.MouseButton1Click:Connect(function()
@@ -394,14 +394,14 @@ end
         BackgroundColor3 = Color3.fromRGB(45,45,45),
         Parent = parent
     }, {
-        create("UICorner",{CornerRadius = UDim.new(0,6)}), -- slightly smaller corners
+        create("UICorner",{CornerRadius = UDim.new(0,6)}),
         create("UIStroke",{Color = Color3.fromRGB(80,80,80)})
     })
 
     local Label = create("TextLabel", {
         Text = placeholder,
         Font = Enum.Font.Gotham,
-        TextSize = 13, -- smaller font
+        TextSize = 13,
         TextColor3 = Color3.fromRGB(255,255,255),
         BackgroundTransparency = 1,
         Size = UDim2.new(0.6, -6, 1, 0),
@@ -417,7 +417,7 @@ end
         TextColor3 = Color3.fromRGB(255,255,255),
         Text = "",
         Font = Enum.Font.Gotham,
-        TextSize = 13, -- smaller font
+        TextSize = 13,
         Parent = BoxFrame
     }, {
         create("UICorner",{CornerRadius=UDim.new(0,4)}),
@@ -425,11 +425,14 @@ end
     })
 
     Box.FocusLost:Connect(function(enter)
-        if enter then pcall(callback, Box.Text) end
+        if enter and callback then -- check callback exists
+            pcall(callback, Box.Text)
+        end
     end)
 
     return BoxFrame
 end)
+
 
 
     -- SLIDER
