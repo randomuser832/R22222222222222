@@ -209,9 +209,6 @@ end)
         Parent = MainFrame
     })
 
- -- Make sure wrappers exist before this
--- SkidzWare.CreateButton, SkidzWare.CreateToggle, SkidzWare.CreateTextbox, SkidzWare.CreateSlider
-
 local Tabs = {}
 
 function SkidzWare:CreateTab(name)
@@ -241,7 +238,7 @@ function SkidzWare:CreateTab(name)
 
         tabObj.Frame = tabFrame
 
-        -- Create the tab button
+        -- Tab button
         local btn = create("TextButton", {
             Size = UDim2.new(0,100,1,0),
             BackgroundColor3 = Color3.fromRGB(50,50,50),
@@ -267,29 +264,32 @@ function SkidzWare:CreateTab(name)
             t.Button.Position = UDim2.new(0,(i-1)*110,0,0)
         end
 
-        -- Add element wrappers
+        -- ✅ ELEMENT WRAPPERS (Parent automatically added to tabFrame)
+        local function addComponent(el)
+            el.Parent = tabFrame
+            table.insert(tabObj.Components, el)
+        end
+
         tabObj.CreateButton = function(text, callback)
-            return SkidzWare.CreateButton(tabObj.Frame, text, callback)
+            return addComponent(SkidzWare.CreateButton(tabFrame, text, callback))
         end
         tabObj.CreateToggle = function(text, callback)
-            return SkidzWare.CreateToggle(tabObj.Frame, text, callback)
+            return addComponent(SkidzWare.CreateToggle(tabFrame, text, callback))
         end
         tabObj.CreateTextbox = function(placeholder, callback)
-            return SkidzWare.CreateTextbox(tabObj.Frame, placeholder, callback)
+            return addComponent(SkidzWare.CreateTextbox(tabFrame, placeholder, callback))
         end
         tabObj.CreateSlider = function(text, min, max, callback)
-            return SkidzWare.CreateSlider(tabObj.Frame, text, min, max, callback)
+            return addComponent(SkidzWare.CreateSlider(tabFrame, text, min, max, callback))
         end
 
         return tabObj
     end)
 
-    if not ok then
-        warn("CreateTab failed: "..tostring(tabObj))
-    end
-
+    if not ok then warn("CreateTab failed: "..tostring(tabObj)) end
     return tabObj
 end
+
 
 
 
