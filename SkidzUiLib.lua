@@ -150,9 +150,6 @@ end)
 
 
 
-
-
-
     -- NOTIFICATIONS
     local NotificationsFrame = create("Frame", {
         Size = UDim2.new(0, 300, 0, 500),
@@ -212,11 +209,14 @@ end)
         Parent = MainFrame
     })
 
-    local Tabs = {}
+ -- Make sure wrappers exist before this
+-- SkidzWare.CreateButton, SkidzWare.CreateToggle, SkidzWare.CreateTextbox, SkidzWare.CreateSlider
+
+local Tabs = {}
 
 function SkidzWare:CreateTab(name)
-    local ok, tab = pcall(function()
-        local tabObj = {Name=name, Components={}}
+    local ok, tabObj = pcall(function()
+        local tabObj = {Name = name, Components = {}}
 
         -- Scrollable frame inside tab
         local tabFrame = create("ScrollingFrame", {
@@ -227,11 +227,14 @@ function SkidzWare:CreateTab(name)
             Parent = TabContentFrame,
             Visible = (#Tabs == 0)
         })
-
         tabFrame.ClipsDescendants = true
 
         -- UIListLayout for vertical stacking
-        local listLayout = create("UIListLayout", {Parent=tabFrame, Padding=UDim.new(0,8), FillDirection=Enum.FillDirection.Vertical})
+        local listLayout = create("UIListLayout", {
+            Parent = tabFrame,
+            Padding = UDim.new(0,8),
+            FillDirection = Enum.FillDirection.Vertical
+        })
         listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
             tabFrame.CanvasSize = UDim2.new(0,0,0,listLayout.AbsoluteContentSize.Y + 10)
         end)
@@ -239,15 +242,15 @@ function SkidzWare:CreateTab(name)
         tabObj.Frame = tabFrame
 
         -- Create the tab button
-        local btn = create("TextButton",{
-            Size=UDim2.new(0,100,1,0),
-            BackgroundColor3=Color3.fromRGB(50,50,50),
-            Text=name,
-            TextColor3=Color3.fromRGB(255,255,255),
-            Font=Enum.Font.GothamBold,
-            TextSize=14,
-            Parent=TabButtonsFrame
-        }, {create("UICorner",{CornerRadius=UDim.new(0,8)})})
+        local btn = create("TextButton", {
+            Size = UDim2.new(0,100,1,0),
+            BackgroundColor3 = Color3.fromRGB(50,50,50),
+            Text = name,
+            TextColor3 = Color3.fromRGB(255,255,255),
+            Font = Enum.Font.GothamBold,
+            TextSize = 14,
+            Parent = TabButtonsFrame
+        }, {create("UICorner",{CornerRadius = UDim.new(0,8)})})
 
         btn.MouseButton1Click:Connect(function()
             for _, t in ipairs(Tabs) do
@@ -260,11 +263,11 @@ function SkidzWare:CreateTab(name)
         table.insert(Tabs, tabObj)
 
         -- Reposition tab buttons
-        for i,t in ipairs(Tabs) do
+        for i, t in ipairs(Tabs) do
             t.Button.Position = UDim2.new(0,(i-1)*110,0,0)
         end
 
-        -- Add element wrappers for this tab
+        -- Add element wrappers
         tabObj.CreateButton = function(text, callback)
             return SkidzWare.CreateButton(tabObj.Frame, text, callback)
         end
@@ -280,20 +283,18 @@ function SkidzWare:CreateTab(name)
 
         return tabObj
     end)
-    if not ok then warn("CreateTab failed: "..tostring(tab)) end
-    return tab
+
+    if not ok then
+        warn("CreateTab failed: "..tostring(tabObj))
+    end
+
+    return tabObj
 end
 
 
 
-    -- FUNCTION WRAPPERS
-    local function safeCall(funcName, func)
-        return function(...)
-            local ok, result = pcall(func,...)
-            if not ok then warn(funcName.." failed: "..tostring(result)) end
-            return result
-        end
-    end
+
+
 
     -- BUTTON
     SkidzWare.CreateButton = safeCall("CreateButton", function(parent,text,callback)
