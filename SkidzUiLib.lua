@@ -159,19 +159,20 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 -- MINIMIZE / RESTORE LOGIC
+-- MINIMIZE / RESTORE LOGIC
 local minimized = false
 MinimizeButton.MouseButton1Click:Connect(function()
     minimized = not minimized
 
     if minimized then
-        -- Hide everything except Topbar
+        -- Hide all children except Topbar
         for _, child in ipairs(MainFrame:GetChildren()) do
             if child ~= Topbar then
                 child.Visible = false
             end
         end
 
-        -- Hide all tab contents
+        -- Hide all tab content frames
         for _, tab in ipairs(Tabs) do
             tab.Frame.Visible = false
         end
@@ -179,19 +180,19 @@ MinimizeButton.MouseButton1Click:Connect(function()
         -- Change button symbol
         MinimizeButton.Text = "+"
 
-        -- Shrink MainFrame to Topbar height
+        -- Animate shrinking
         TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
             Size = UDim2.new(MainFrame.Size.X.Scale, MainFrame.Size.X.Offset, 0, Topbar.Size.Y.Offset)
         }):Play()
     else
-        -- Show everything again
+        -- Show all children again
         for _, child in ipairs(MainFrame:GetChildren()) do
             if child ~= Topbar then
                 child.Visible = true
             end
         end
 
-        -- Show first tab by default
+        -- Restore the first tab by default
         if #Tabs > 0 then
             Tabs[1].Frame.Visible = true
         end
@@ -199,12 +200,13 @@ MinimizeButton.MouseButton1Click:Connect(function()
         -- Change button symbol back
         MinimizeButton.Text = "-"
 
-        -- Expand MainFrame back to original size
+        -- Animate expanding
         TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
             Size = UDim2.new(0, 500, 0, 360)
         }):Play()
     end
 end)
+
 
 
     -- NOTIFICATIONS
@@ -386,17 +388,49 @@ end
     end)
 
     -- TEXTBOX
-    SkidzWare.CreateTextbox = safeCall("CreateTextbox", function(parent,placeholder,callback)
-        local BoxFrame = create("Frame",{Size = UDim2.new(1,-10,0,32), BackgroundColor3 = Color3.fromRGB(45,45,45), Parent = parent}, {create("UICorner",{CornerRadius=UDim.new(0,8)}), create("UIStroke",{Color=Color3.fromRGB(80,80,80)})})
-        local Label = create("TextLabel", {Text = placeholder, Font = Enum.Font.Gotham, TextSize = 14, TextColor3 = Color3.fromRGB(255,255,255), BackgroundTransparency = 1, Size = UDim2.new(0.6, -10, 1, 0), Position = UDim2.new(0,8,0,0), Parent = BoxFrame, TextXAlignment = Enum.TextXAlignment.Left})
-        local Box = create("TextBox",{Size=UDim2.new(0.34,0,1,0), Position=UDim2.new(0.66,0,0,0), BackgroundColor3=Color3.fromRGB(30,30,30), TextColor3=Color3.fromRGB(255,255,255), Text="", Font=Enum.Font.Gotham, TextSize=14, Parent=BoxFrame})
-        create("UICorner",{CornerRadius=UDim.new(0,4), Parent=Box})
-        create("UIStroke",{Color=Color3.fromRGB(100,100,100), Parent=Box})
-        Box.FocusLost:Connect(function(enter)
-            if enter then pcall(callback,Box.Text) end
-        end)
-        return BoxFrame
+  SkidzWare.CreateTextbox = safeCall("CreateTextbox", function(parent, placeholder, callback)
+    local BoxFrame = create("Frame", {
+        Size = UDim2.new(1, -10, 0, 28), -- smaller height
+        BackgroundColor3 = Color3.fromRGB(45,45,45),
+        Parent = parent
+    }, {
+        create("UICorner",{CornerRadius = UDim.new(0,6)}), -- slightly smaller corners
+        create("UIStroke",{Color = Color3.fromRGB(80,80,80)})
+    })
+
+    local Label = create("TextLabel", {
+        Text = placeholder,
+        Font = Enum.Font.Gotham,
+        TextSize = 13, -- smaller font
+        TextColor3 = Color3.fromRGB(255,255,255),
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0.6, -6, 1, 0),
+        Position = UDim2.new(0,6,0,0),
+        Parent = BoxFrame,
+        TextXAlignment = Enum.TextXAlignment.Left
+    })
+
+    local Box = create("TextBox", {
+        Size = UDim2.new(0.34, 0, 1, 0),
+        Position = UDim2.new(0.66, 0, 0, 0),
+        BackgroundColor3 = Color3.fromRGB(30,30,30),
+        TextColor3 = Color3.fromRGB(255,255,255),
+        Text = "",
+        Font = Enum.Font.Gotham,
+        TextSize = 13, -- smaller font
+        Parent = BoxFrame
+    }, {
+        create("UICorner",{CornerRadius=UDim.new(0,4)}),
+        create("UIStroke",{Color=Color3.fromRGB(100,100,100)})
+    })
+
+    Box.FocusLost:Connect(function(enter)
+        if enter then pcall(callback, Box.Text) end
     end)
+
+    return BoxFrame
+end)
+
 
     -- SLIDER
     SkidzWare.CreateSlider = safeCall("CreateSlider", function(parent,text,min,max,callback)
