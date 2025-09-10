@@ -332,32 +332,33 @@ SkidzWare.CreateToggle = function(parent, text, callback)
     return toggle
 end
 
--- TEXTBOX
 -- TEXTBOX (Compact Version)
 SkidzWare.CreateTextbox = function(parent, placeholder, callback)
     local frame = create("Frame", {
-        Size = UDim2.new(1, -10, 0, 24), -- smaller height
+        Size = UDim2.new(1, -10, 0, 24), -- frame height
         BackgroundColor3 = Color3.fromRGB(45,45,45),
         Parent = parent
     })
     create("UICorner",{CornerRadius = UDim.new(0,6), Parent = frame})
     create("UIStroke",{Color = Color3.fromRGB(80,80,80), Parent = frame})
 
+    -- Placeholder label
     local label = create("TextLabel", {
         Text = placeholder or "",
         Font = Enum.Font.Gotham,
-        TextSize = 12, -- slightly smaller font
+        TextSize = 12,
         TextColor3 = Color3.fromRGB(255,255,255),
         BackgroundTransparency = 1,
-        Size = UDim2.new(0.55, -6, 1, 0), -- smaller label width
+        Size = UDim2.new(0.4, -6, 1, 0), -- smaller label width
         Position = UDim2.new(0,6,0,0),
         Parent = frame,
         TextXAlignment = Enum.TextXAlignment.Left
     })
 
+    -- Actual textbox (where user types)
     local box = create("TextBox", {
-        Size = UDim2.new(0.42, 0, 1, 0), -- slightly wider to fit frame nicely
-        Position = UDim2.new(0.58, 0, 0, 0),
+        Size = UDim2.new(0.55, 0, 0.8, 0), -- smaller height and width
+        Position = UDim2.new(0.42, 0, 0.1, 0), -- center vertically in frame
         BackgroundColor3 = Color3.fromRGB(30,30,30),
         TextColor3 = Color3.fromRGB(255,255,255),
         Text = "",
