@@ -381,29 +381,74 @@ end
 
 
 -- SLIDER
+-- SLIDER (Label above, bar at bottom)
 SkidzWare.CreateSlider = function(parent, text, min, max, callback)
-    local frame = create("Frame",{Size=UDim2.new(1,-10,0,32), BackgroundColor3 = Color3.fromRGB(45,45,45), Parent = parent}, {create("UICorner",{CornerRadius=UDim.new(0,8)}), create("UIStroke",{Color=Color3.fromRGB(80,80,80)})})
-    local label = create("TextLabel",{Text=text, Font=Enum.Font.Gotham, TextSize=14, TextColor3=Color3.fromRGB(255,255,255), BackgroundTransparency=1, Size=UDim2.new(0.4,0,1,0), Parent = frame, TextXAlignment=Enum.TextXAlignment.Left})
-    local barBG = create("Frame",{Size=UDim2.new(0.55,0,0.3,0), Position=UDim2.new(0.45,0,0.35,0), BackgroundColor3=Color3.fromRGB(30,30,30), Parent = frame}, {create("UICorner",{CornerRadius=UDim.new(0,4)})})
-    local bar = create("Frame",{Size=UDim2.new(0,0,1,0), BackgroundColor3=Color3.fromRGB(0,200,100), Parent = barBG}, {create("UICorner",{CornerRadius=UDim.new(0,4)})})
+    local SliderFrame = create("Frame", {
+        Size = UDim2.new(1, -10, 0, 40), -- slightly taller to fit label above
+        BackgroundColor3 = Color3.fromRGB(45,45,45),
+        Parent = parent
+    }, {create("UICorner",{CornerRadius=UDim.new(0,8)}), create("UIStroke",{Color=Color3.fromRGB(80,80,80)})})
+
+    -- Label above the bar
+    local Label = create("TextLabel", {
+        Text = text,
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        TextColor3 = Color3.fromRGB(255,255,255),
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0.4, 0), -- top 40% of frame
+        Position = UDim2.new(0, 0, 0, 0),
+        Parent = SliderFrame,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Center
+    })
+
+    -- Bar background at bottom
+    local BarBG = create("Frame", {
+        Size = UDim2.new(1, -12, 0, 10), -- full width minus padding
+        Position = UDim2.new(0, 6, 0.6, 0), -- start just below the label
+        BackgroundColor3 = Color3.fromRGB(30,30,30),
+        Parent = SliderFrame
+    }, {create("UICorner",{CornerRadius=UDim.new(0,4)})})
+
+    -- Bar fill
+    local Bar = create("Frame", {
+        Size = UDim2.new(0,0,1,0), -- start empty
+        BackgroundColor3 = Color3.fromRGB(0,200,100),
+        Parent = BarBG
+    }, {create("UICorner",{CornerRadius=UDim.new(0,4)})})
+
     local dragging = false
+
     local function update(input)
-        local pos = math.clamp(input.Position.X - barBG.AbsolutePosition.X, 0, barBG.AbsoluteSize.X)
-        bar.Size = UDim2.new(pos/barBG.AbsoluteSize.X,0,1,0)
-        local val = min + (pos/barBG.AbsoluteSize.X)*(max-min)
+        local pos = math.clamp(input.Position.X - BarBG.AbsolutePosition.X, 0, BarBG.AbsoluteSize.X)
+        Bar.Size = UDim2.new(pos / BarBG.AbsoluteSize.X, 0, 1, 0)
+        local val = min + (pos / BarBG.AbsoluteSize.X) * (max - min)
         pcall(callback, val)
     end
-    barBG.InputBegan:Connect(function(input)
-        if input.UserInputType==Enum.UserInputType.MouseButton1 then dragging=true update(input) end
+
+    BarBG.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            update(input)
+        end
     end)
+
     UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType==Enum.UserInputType.MouseMovement then update(input) end
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            update(input)
+        end
     end)
-    barBG.InputEnded:Connect(function(input)
-        if input.UserInputType==Enum.UserInputType.MouseButton1 then dragging=false end
+
+    BarBG.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
     end)
-    return frame
+
+    return SliderFrame
 end
+
 
 
 end)
